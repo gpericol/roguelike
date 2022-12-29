@@ -1,0 +1,34 @@
+{
+    "map": {
+        "value": [],
+        "visited": [],
+        "visible": [],
+        "fov_radius": 8
+    },
+    "dungeon": {
+        "map": [],
+        "visited": [],
+        "floors_number": 0
+    },
+    "visibility": {
+        "fov": 10,
+        "visible": []
+    },
+    "role": {
+        "value": "player"
+    },
+    "position": {
+        "x": 0,
+        "y": 0,
+        "floor": 0
+    },
+    "state":{
+        "value": ""
+    },
+    "key_sequence": {
+        "value": []
+    },
+    "curses":{
+        "value": null
+    }
+}
