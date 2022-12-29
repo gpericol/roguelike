@@ -1,16 +1,24 @@
 import curses
+from constants import *
 
 class CursesManager:
     def __init__(self):
-        # refactor
-        # tira fuori curses  da qui
-        # e metti screen condiviso su una entity
         self.screen = curses.initscr()
         self.h = curses.LINES
         self.w = curses.COLS
         curses.noecho()
         curses.cbreak()
         curses.curs_set(False)
+        curses.start_color()
+        curses.use_default_colors()
+        self.init_colors()
+
+    def init_colors(self):
+        curses.init_pair(COLOR_WHITE, 15, -1)
+        curses.init_pair(COLOR_GRAY, 8, -1)
+        curses.init_pair(COLOR_RED, 12, -1)
+        curses.init_pair(COLOR_DARK_GRAY, 16, -1)
+        curses.init_pair(COLOR_GREEN, 2, -1)
 
     def __del__(self):
         curses.nocbreak()

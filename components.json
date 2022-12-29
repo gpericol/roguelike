@@ -1,14 +1,9 @@
 {
-    "map": {
-        "value": [],
-        "visited": [],
-        "visible": [],
-        "fov_radius": 8
-    },
     "dungeon": {
         "map": [],
         "visited": [],
-        "floors_number": 0
+        "floors_number": 0,
+        "rooms_center": []
     },
     "visibility": {
         "fov": 10,
@@ -17,10 +12,17 @@
     "role": {
         "value": "player"
     },
+    "race": {
+        "symbol": "G",
+        "value": "Ghost"
+    },
     "position": {
         "x": 0,
         "y": 0,
         "floor": 0
+    },
+    "direction": {
+        "value": []
     },
     "state":{
         "value": ""

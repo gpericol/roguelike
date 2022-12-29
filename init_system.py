@@ -6,6 +6,7 @@ from dungeon import Dungeon
 
 class InitSystem(System):
 
+    # todo 
     def _prepare_new_world(self):
         # remove entity dungeon
         entity_dungeon = System.filter_entities(['dungeon'])
@@ -22,7 +23,7 @@ class InitSystem(System):
         entity_dungeon = Entity()
         dungeon_height = 200
         dungeon_width = 200
-        dungeon_generator = Dungeon(dungeon_width, dungeon_height, 50, 20, 10, 3)
+        dungeon_generator = Dungeon(dungeon_width, dungeon_height, 40, 20, 10, 3)
         
         component_dungeon = Component('dungeon')
         component_dungeon.data['floors_number'] = dungeon_generator.floors_num
@@ -30,6 +31,7 @@ class InitSystem(System):
         for floor in dungeon_generator.floors:
             component_dungeon.data['map'].append(floor.get_map())
             component_dungeon.data['visited'].append(floor.get_visited())
+            component_dungeon.data['rooms_center'].append(floor.get_rooms_center())
 
         component_visibility = Component('visibility')
         component_visibility.data['fov'] = 10
@@ -53,6 +55,39 @@ class InitSystem(System):
         entity_player.append(component_role)
         entity_player.append(component_position)
         System.add_entity(entity_player)
+
+        # create enemies
+        for floor in dungeon_generator.floors:
+            for enemy in floor.get_enemies():
+                entity_enemy = Entity()
+                component_role = Component('role')
+                component_role.data['value'] = 'enemy'
+
+                component_position = Component('position')
+                component_position.data['x'] = enemy[0]
+                component_position.data['y'] = enemy[1]
+                component_position.data['floor'] = floor.floor_number
+
+                component_race = Component('race')
+                if enemy[2] == 0:
+                    component_race.data['symbol'] = 'Z'
+                    component_race.data['value'] = 'Zombie'
+                elif enemy[2] == 1:
+                    component_race.data['symbol'] = 'G'
+                    component_race.data['value'] = 'Ghoul'
+                elif enemy[2] == 2:
+                    component_race.data['symbol'] = 'V'
+                    component_race.data['value'] = 'Vampire'
+
+                component_direction = Component('direction')
+                component_direction.data['x'] = None
+                component_direction.data['y'] = None
+
+                entity_enemy.append(component_role)
+                entity_enemy.append(component_position)
+                entity_enemy.append(component_direction)
+                entity_enemy.append(component_race)
+                System.add_entity(entity_enemy)
 
     def update(self):
         # get state

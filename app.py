@@ -8,6 +8,7 @@ from curses_manager import CursesManager
 from keyboard_system import KeyboardSystem  
 from init_system import InitSystem
 from dungeon_system import DungeonSystem
+from enemies_system import EnemiesSystem
 
 def main():
     # crate state entity
@@ -40,6 +41,7 @@ def main():
     system_init = InitSystem()
     system_dungeon = DungeonSystem()
     system_visibility = VisibilitySystem()
+    system_enemies = EnemiesSystem()
     #system_fight = FightSystem()
     
 
@@ -50,6 +52,7 @@ def main():
         system_keyboard.update()
         system_init.update()
         system_dungeon.update()
+        system_enemies.update()
         #system_fight.update()
 
 

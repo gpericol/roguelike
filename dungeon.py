@@ -34,7 +34,24 @@ class Floor:
         self.visited = [[False for x in range(width)] for y in range(height)]
         self.stair_up = None
         self.stair_down = None
+        self.enemies = []
+        self
         self.generate_map()
+        self.create_enemies()
+
+
+    def create_enemies(self):
+        # select random room and put just one enemy
+        for room in self.rooms:
+            if random.randint(0, 100) > 50:
+                (x, y) = room.center()
+                self.enemies.append((x, y, random.randint(0, 2)))
+        
+    def get_enemies(self):
+        return self.enemies
+
+    def get_rooms_center(self):
+        return [room.center() for room in self.rooms]
 
     def generate_map(self):
         for _ in range(self.max_rooms):
