@@ -32,6 +32,7 @@ class InitSystem(System):
             component_dungeon.data['map'].append(floor.get_map())
             component_dungeon.data['visited'].append(floor.get_visited())
             component_dungeon.data['rooms_center'].append(floor.get_rooms_center())
+            component_dungeon.data['paths'].append(floor.get_paths())
 
         component_visibility = Component('visibility')
         component_visibility.data['fov'] = 10
@@ -52,8 +53,12 @@ class InitSystem(System):
         component_position.data['y'] = first_room_center[1]
         component_position.data['floor'] = 0
 
+        component_status = Component('status')
+
         entity_player.append(component_role)
         entity_player.append(component_position)
+        entity_player.append(component_status)
+        
         System.add_entity(entity_player)
 
         # create enemies
@@ -88,6 +93,28 @@ class InitSystem(System):
                 entity_enemy.append(component_direction)
                 entity_enemy.append(component_race)
                 System.add_entity(entity_enemy)
+
+        # create crates
+        for floor in dungeon_generator.floors:
+            for crate in floor.get_crates():
+                entity_crate = Entity()
+                component_role = Component('role')
+                component_role.data['value'] = 'crate'
+
+                component_position = Component('position')
+                component_position.data['x'] = crate[0]
+                component_position.data['y'] = crate[1]
+                component_position.data['floor'] = floor.floor_number
+
+                component_state = Component('state')
+                component_state.data['value'] = 'closed'
+
+                entity_crate.append(component_role)
+                entity_crate.append(component_position)
+                entity_crate.append(component_state)
+                
+                System.add_entity(entity_crate)
+
 
     def update(self):
         # get state

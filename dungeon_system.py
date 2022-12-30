@@ -47,5 +47,17 @@ class DungeonSystem(System):
             player.get('position')['x'] = player_x
             player.get('position')['y'] = player_y
 
+        if map[player_y][player_x] == CRATE:
+            # check if the crate is closed
+            crate = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'crate' and e.get('position')['x'] == player_x and e.get('position')['y'] == player_y and e.get('position')['floor'] == player.get('position')['floor']]
+            if len(crate) > 0:
+                crate = crate[0]
+            if crate.get('state')['value'] == 'closed':
+                System.push_event({
+                    'type': 'noise_event',
+                    'value': 'crate_open'
+                })
+                crate.get('state')['value'] = 'open'
+
         System.remove_events('key_stroke')
         

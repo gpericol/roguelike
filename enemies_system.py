@@ -79,7 +79,6 @@ class EnemiesSystem(System):
                 # if child is not walkable, skip
                 if map[child.position[1]][child.position[0]] >= WALL_FULL:
                     continue
-                
 
                 # calculate f, g, h
                 child.calc_g(current_node)
@@ -96,6 +95,18 @@ class EnemiesSystem(System):
                 open_list.append(child)
 
 
+    def find_path(self, paths, point):
+        selected_paths = []
+
+        for path in paths:
+            if point == path[0]:
+                selected_paths.append(path)
+        
+        if len(selected_paths) == 0:
+            return None
+
+        # choose random path
+        return random.choice(selected_paths)
 
     def update(self):
         # verify that state si dungeon
@@ -118,30 +129,36 @@ class EnemiesSystem(System):
         # get rooms center on player floor
         rooms_center = dungeon['rooms_center'][player.get('position')['floor']]
 
-        for enemy in enemies:
-            # if enemy has no direction, get a random room center position but only one time because it's slow
-            calculated = False
-            
+        # get paths on player floor
+        paths = dungeon['paths'][player.get('position')['floor']]
+
+        for enemy in enemies:            
             # si può fare meglio solo precalcolando i path (magari quando si fanno le stanze) ma sticazzi
-            if len(enemy.get('direction')["value"]) == 0 and not calculated:
-                calculated = True
-                nearest_rooms = []
-                for room in rooms_center:
-                    distance = abs(enemy.get('position')['x'] - room[0]) + abs(enemy.get('position')['y'] - room[1])
-                    nearest_rooms.append((room, distance))
+            if len(enemy.get('direction')["value"]) == 0:
+                # find nearest path
+                path = self.find_path(paths, (enemy.get('position')['x'], enemy.get('position')['y'])).copy()
+      
+                if path is None:
+                    # find romm nearest
+                    nearest_room_center = None
+                    distance_room = 99999
 
-                nearest_rooms.sort(key=lambda x: x[1])
-                random_room = random.choice(nearest_rooms[:3])[0]
+                    for room_center in rooms_center:
+                        distance = abs(enemy.get('position')['x'] - room_center[0]) + abs(enemy.get('position')['y'] - room_center[1])
+                        if distance < distance_room:
+                            distance_room = distance
+                            nearest_room_center = room_center
+                    
+                    path = self.a_star(map, (enemy.get('position')['x'], enemy.get('position')['y']), (nearest_room_center[0], nearest_room_center[1]))
 
-                enemy.get('direction')["value"] = self.a_star(map, (enemy.get('position')['x'], enemy.get('position')['y']), (random_room[0], random_room[1]))
+                enemy.get('direction')["value"] = path
 
-            # go to direction
             if len(enemy.get('direction')["value"]) > 0:
-                direction = enemy.get('direction')["value"].pop(0)
-                enemy.get('position')['x'] = direction[0]
-                enemy.get('position')['y'] = direction[1]
-            
-                       
+                direction = enemy.get('direction')["value"][0]
+                if direction[0] == player.get('position')['x'] and direction[1] == player.get('position')['y']:
+                    player.get('status')['hp'] -= 20
+                else:
+                    enemy.get('direction')["value"].pop(0)
+                    enemy.get('position')['x'] = direction[0]
+                    enemy.get('position')['y'] = direction[1]
 
-            
-            

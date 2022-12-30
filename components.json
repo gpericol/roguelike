@@ -3,7 +3,8 @@
         "map": [],
         "visited": [],
         "floors_number": 0,
-        "rooms_center": []
+        "rooms_center": [],
+        "paths": []
     },
     "visibility": {
         "fov": 10,
@@ -32,5 +33,11 @@
     },
     "curses":{
         "value": null
+    },
+    "status": {
+        "hp": 100,
+        "max_hp": 100,
+        "sanity": 100,
+        "max_sanity": 100
     }
 }

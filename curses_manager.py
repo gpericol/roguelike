@@ -19,6 +19,10 @@ class CursesManager:
         curses.init_pair(COLOR_RED, 12, -1)
         curses.init_pair(COLOR_DARK_GRAY, 16, -1)
         curses.init_pair(COLOR_GREEN, 2, -1)
+        curses.init_pair(COLOR_LIGHT_BROWN, 166, -1)
+        curses.init_pair(COLOR_BROWN, 138, -1)
+
+        curses.init_pair(COLOR_TOP, -1, 8)
 
     def __del__(self):
         curses.nocbreak()

@@ -35,13 +35,35 @@ class Floor:
         self.stair_up = None
         self.stair_down = None
         self.enemies = []
-        self
+        self.crates = []
+        self.paths = []
         self.generate_map()
-        self.create_enemies()
+        
+        # add to self paths also reverse paths
+        for i in range(len(self.paths)):
+            self.paths.append(self.paths[i][::-1])
 
+        self.create_enemies()
+        self.create_crates()
+
+    def create_crates(self):
+        # select random room and put just one enemy
+        for room in self.rooms:
+            # select a random corner of room    
+            x = room.x1 + 1
+            y = room.y1 + 1
+            if random.randint(0, 100) > 50:
+                x = room.x2 - 1
+            if random.randint(0, 100) > 50:
+                y = room.y2 - 1
+
+            self.crates.append((x, y))
+            # set crate closed on the map
+            self.map[y][x] = CRATE
+   
 
     def create_enemies(self):
-        # select random room and put just one enemy
+        # select random corner of the room
         for room in self.rooms:
             if random.randint(0, 100) > 50:
                 (x, y) = room.center()
@@ -91,12 +113,35 @@ class Floor:
             (new_x, new_y) = rooms_copy[min_index].center()
             (prev_x, prev_y) = room_before.center()
 
+            paths = []
+
             if random.randint(0, 1) == 1:
-                self.create_h_tunnel(prev_x, new_x, prev_y)
-                self.create_v_tunnel(prev_y, new_y, new_x)
+                path = self.create_h_tunnel(prev_x, new_x, prev_y)
+                
+                # if the path is not from the prev_x, prev_y
+                if path[0] != (prev_x, prev_y):
+                    path = path[::-1]
+                paths += path
+
+                path = self.create_v_tunnel(prev_y, new_y, new_x)
+                
+                # if the path not stop on the new_x, new_y
+                if path[-1] != (new_x, new_y):
+                    path = path[::-1]
+                
+                paths += path
             else:
-                self.create_v_tunnel(prev_y, new_y, prev_x)
-                self.create_h_tunnel(prev_x, new_x, new_y)
+                path = self.create_v_tunnel(prev_y, new_y, prev_x)
+                if path[0] != (prev_x, prev_y):
+                    path = path[::-1]
+                paths += path
+                
+                path = self.create_h_tunnel(prev_x, new_x, new_y)
+                if path[-1] != (new_x, new_y):
+                    path = path[::-1]
+                paths += path
+
+            self.paths.append(paths)
             
         # stairs
         self.stair_up = self.rooms[0].center()
@@ -126,7 +171,9 @@ class Floor:
 
 
     def create_h_tunnel(self, x1, x2, y):
+        path = []
         for x in range(min(x1, x2), max(x1, x2) + 1):
+            path.append((x, y))
             if self.map[y][x] >= WALL_FULL:
                 self.map[y][x] = GROUND_NORMAL
 
@@ -143,6 +190,7 @@ class Floor:
                         self.map[y+1][x] = WALL_HORIZONTAL
 
         end = [max(x1, x2)+1, min(x1, x2)-1] 
+        
 
         for x in end:
             if self.map[y][x] >= WALL_FULL:
@@ -153,11 +201,15 @@ class Floor:
 
                 if self.map[y+1][x] >= WALL_FULL:
                         self.map[y+1][x] = WALL_CORNER
+        
+        return path
 
 
 
     def create_v_tunnel(self, y1, y2, x):
+        path = []
         for y in range(min(y1, y2), max(y1, y2) + 1):
+            path.append((x, y))
             if self.map[y][x] >= WALL_FULL:
                 self.map[y][x] = GROUND_NORMAL
             
@@ -183,9 +235,8 @@ class Floor:
 
                 if self.map[y][x+1] >= WALL_FULL:
                     self.map[y][x+1] = WALL_CORNER
-
-       
-                
+        
+        return path
 
     def get_map(self):
         return self.map
@@ -201,6 +252,12 @@ class Floor:
 
     def get_stair_down(self):
         return self.stair_down
+
+    def get_crates(self):
+        return self.crates
+
+    def get_paths(self):
+        return self.paths
 
 class Dungeon:
     def __init__(self, width, height, max_rooms, max_room_size, min_room_size, floors):
