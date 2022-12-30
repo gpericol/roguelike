@@ -2,6 +2,7 @@
     "dungeon": {
         "map": [],
         "visited": [],
+        "blood": [],
         "floors_number": 0,
         "rooms_center": [],
         "paths": []
@@ -15,7 +16,10 @@
     },
     "race": {
         "symbol": "G",
-        "value": "Ghost"
+        "value": "Ghost",
+        "hp": 10,
+        "attack": 10,
+        "fov": 5
     },
     "position": {
         "x": 0,

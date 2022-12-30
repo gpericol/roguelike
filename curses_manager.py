@@ -15,12 +15,13 @@ class CursesManager:
 
     def init_colors(self):
         curses.init_pair(COLOR_WHITE, 15, -1)
-        curses.init_pair(COLOR_GRAY, 8, -1)
-        curses.init_pair(COLOR_RED, 12, -1)
+        curses.init_pair(COLOR_GRAY, 59, -1)
+        curses.init_pair(COLOR_RED, 196, -1)
         curses.init_pair(COLOR_DARK_GRAY, 16, -1)
         curses.init_pair(COLOR_GREEN, 2, -1)
         curses.init_pair(COLOR_LIGHT_BROWN, 166, -1)
         curses.init_pair(COLOR_BROWN, 138, -1)
+        curses.init_pair(COLOR_LIGHT_RED, 4, -1)
 
         curses.init_pair(COLOR_TOP, -1, 8)
 

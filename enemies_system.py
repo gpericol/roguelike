@@ -1,6 +1,7 @@
 from system import System
 from constants import *
 import random
+import math
 
 class EnemiesSystem(System):
     class Node:
@@ -106,7 +107,43 @@ class EnemiesSystem(System):
             return None
 
         # choose random path
-        return random.choice(selected_paths)
+        return random.choice(selected_paths).copy()
+
+    # todo refactor: this is a copy of fov in visibility system
+    def diag_dist(self, x1, y1, x2, y2):
+        dx = x2 - x1
+        dy = y2 - y1
+        return max(abs(dx), abs(dy))
+
+    def lerp(self, a, b, t):
+        return a + (b - a) * t    
+
+    def fov(self, map, x, y, dist):
+        glare = [[False for x in range(len(map[0]))] for y in range(len(map))]
+
+        for i in range(360):
+            deg = i * (math.pi / 180)
+            nx = round(math.cos(deg) * dist) + x
+            ny = round(math.sin(deg) * dist) + y
+
+            d = self.diag_dist(x, y, nx, ny)
+                        
+            for j in range(d):
+                tx = self.lerp(x, nx, j / d)
+                ty = self.lerp(y, ny, j / d)
+
+                if tx < 0 or ty < 0 or tx >= len(map[0]) or ty >= len(map):
+                    continue
+                
+                glare[int(ty)][int(tx)] = True
+
+                if map[int(ty)][int(tx)] >= WALL_FULL:
+                    glare[int(ty)][int(tx)] = True
+                    break
+
+                glare[int(ty)][int(tx)] = True
+
+        return glare
 
     def update(self):
         # verify that state si dungeon
@@ -126,6 +163,9 @@ class EnemiesSystem(System):
         # get map on player floor
         map = dungeon['map'][player.get('position')['floor']]
 
+        # get blood on player floor
+        blood = dungeon['blood'][player.get('position')['floor']]
+
         # get rooms center on player floor
         rooms_center = dungeon['rooms_center'][player.get('position')['floor']]
 
@@ -133,10 +173,42 @@ class EnemiesSystem(System):
         paths = dungeon['paths'][player.get('position')['floor']]
 
         for enemy in enemies:            
-            # si può fare meglio solo precalcolando i path (magari quando si fanno le stanze) ma sticazzi
+            if self.diag_dist(enemy.get('position')['x'], enemy.get('position')['y'], player.get('position')['x'], player.get('position')['y']) <= enemy.get('race')['fov']:
+                enemy_x =  enemy.get('position')['x']
+                enemy_y =  enemy.get('position')['y']
+                player_x = player.get('position')['x']
+                player_y = player.get('position')['y']
+                radius = enemy.get('race')['fov']
+                fov_size = radius * 2 + 1
+
+                # get portion of the map that is in fov
+                map_fov = [[0 for x in range(fov_size)] for y in range(fov_size)]
+                for y in range(len(map_fov)):
+                    for x in range(len(map_fov[y])):
+                        new_x = x + enemy_x - radius
+                        new_y = y + enemy_y - radius
+
+                    # check if new_x and new_y are into the map
+                    if new_x >= 0 and new_y >= 0 and new_x < len(map[0]) and new_y < len(map):
+                        map_fov[y][x] = map[new_y][new_x]
+
+                
+                # verify if player is in fov
+                glare = self.fov(map_fov, radius, radius, radius)
+
+                # find in map_fov the player position and verify if is in glare
+                if glare[player_y - enemy_y + radius][player_x - enemy_x + radius]:
+                    # find path to player
+                    path_to_player = self.a_star(map, (enemy_x, enemy_y), (player_x, player_y))
+                    enemy.get('direction')['value'] = path_to_player[1:]
+                    System.push_event({
+                        "type": "debug",
+                        "value": f"{path_to_player[-1][0]} {path_to_player[-1][1]} {player_x} {player_y}"
+                    })
+            
             if len(enemy.get('direction')["value"]) == 0:
                 # find nearest path
-                path = self.find_path(paths, (enemy.get('position')['x'], enemy.get('position')['y'])).copy()
+                path = self.find_path(paths, (enemy.get('position')['x'], enemy.get('position')['y']))
       
                 if path is None:
                     # find romm nearest
@@ -156,7 +228,13 @@ class EnemiesSystem(System):
             if len(enemy.get('direction')["value"]) > 0:
                 direction = enemy.get('direction')["value"][0]
                 if direction[0] == player.get('position')['x'] and direction[1] == player.get('position')['y']:
+                    blood[direction[1]][direction[0]] = True
                     player.get('status')['hp'] -= 20
+                    if player.get('status')['hp'] <= 0:
+                        System.push_event({
+                            "type": "state_change",
+                            "value": "gameover"
+                        })
                 else:
                     enemy.get('direction')["value"].pop(0)
                     enemy.get('position')['x'] = direction[0]

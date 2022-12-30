@@ -32,6 +32,7 @@ class Floor:
         self.floor_number = floor_number
         self.map = [[WALL_FULL for x in range(width)] for y in range(height)]
         self.visited = [[False for x in range(width)] for y in range(height)]
+        self.blood = [[False for x in range(width)] for y in range(height)]
         self.stair_up = None
         self.stair_down = None
         self.enemies = []
@@ -258,6 +259,9 @@ class Floor:
 
     def get_paths(self):
         return self.paths
+
+    def get_blood(self):
+        return self.blood
 
 class Dungeon:
     def __init__(self, width, height, max_rooms, max_room_size, min_room_size, floors):

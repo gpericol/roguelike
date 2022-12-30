@@ -11,7 +11,6 @@ class ScreenSystem(System):
         text = f"HP: {status['hp']}/{status['max_hp']} | Sanity: {status['sanity']}/{status['max_sanity']} | Floor: {player.get('position')['floor']}"
         return " "*(width - len(text) - 1) + text
 
-
     def get_wall_char(self, ch):
         if ch == WALL_FULL:
             return '#'
@@ -43,6 +42,7 @@ class ScreenSystem(System):
         dungeon_entity = [e for e in self.filter_entities(['dungeon'])][0]
 
         map = dungeon_entity.get('dungeon')['map'][player.get('position')['floor']]
+        blood = dungeon_entity.get('dungeon')['blood'][player.get('position')['floor']]
         visited = dungeon_entity.get('dungeon')['visited'][player.get('position')['floor']]
         visible = dungeon_entity.get('visibility')['visible']
 
@@ -127,9 +127,15 @@ class ScreenSystem(System):
                             continue
 
                         if visible[y][x] == True:
-                            curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(COLOR_WHITE))
+                            color = COLOR_WHITE
+                            if blood[y][x]:
+                                color = COLOR_RED
+                            curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(color))
                         elif visited[y][x] == True:
-                            curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(COLOR_DARK_GRAY))
+                            color = COLOR_DARK_GRAY
+                            if blood[y][x]:
+                                color = COLOR_LIGHT_RED
+                            curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(color))
                         else:
                             #curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(COLOR_GRAY))
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
@@ -159,6 +165,17 @@ class ScreenSystem(System):
 
         # print top bar
         curses_component.screen.addstr(0, 0, self.get_top_string(player, curses_component), curses.color_pair(COLOR_TOP))
+        
+        # DEBUG
+        debug = None
+        for event in System._events:
+            if event['type'] == 'debug':
+                debug = event
+                break
+        if debug:
+            curses_component.screen.addstr(1, 0, debug['value'], curses.color_pair(COLOR_TOP))
+            self.remove_events('debug')
+
         curses_component.screen.refresh()
     
 
@@ -166,6 +183,14 @@ class ScreenSystem(System):
         curses_component = self.get_entity_component('curses')['value']
         curses_component.screen.clear()
         curses_component.screen.addstr(5, 0, TITLE, curses.color_pair(COLOR_RED))
+        curses_component.screen.addstr(1, 0, 'Press [Enter] to start', )
+        curses_component.screen.addstr(15, 0, DISCLAIMER, curses.color_pair(COLOR_WHITE))
+        curses_component.screen.refresh()
+
+    def print_gameover(self):
+        curses_component = self.get_entity_component('curses')['value']
+        curses_component.screen.clear()
+        curses_component.screen.addstr(5, 0, GAMEOVER, curses.color_pair(COLOR_RED))
         curses_component.screen.addstr(1, 0, 'Press [Enter] to start', )
         curses_component.screen.refresh()
 
@@ -175,3 +200,5 @@ class ScreenSystem(System):
             self.print_dungeon()
         elif state == 'init':
             self.print_init()
+        elif state == 'gameover':
+            self.print_gameover()

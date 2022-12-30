@@ -21,9 +21,9 @@ class InitSystem(System):
 
         # create dungeon entity
         entity_dungeon = Entity()
-        dungeon_height = 200
-        dungeon_width = 200
-        dungeon_generator = Dungeon(dungeon_width, dungeon_height, 40, 20, 10, 3)
+        dungeon_height = 50
+        dungeon_width = 50
+        dungeon_generator = Dungeon(dungeon_width, dungeon_height, 3, 20, 10, 3)
         
         component_dungeon = Component('dungeon')
         component_dungeon.data['floors_number'] = dungeon_generator.floors_num
@@ -31,12 +31,14 @@ class InitSystem(System):
         for floor in dungeon_generator.floors:
             component_dungeon.data['map'].append(floor.get_map())
             component_dungeon.data['visited'].append(floor.get_visited())
+            component_dungeon.data['blood'].append(floor.get_blood())
             component_dungeon.data['rooms_center'].append(floor.get_rooms_center())
             component_dungeon.data['paths'].append(floor.get_paths())
 
         component_visibility = Component('visibility')
         component_visibility.data['fov'] = 10
         component_visibility.data['visible'] = [[False for x in range(dungeon_width)] for y in range(dungeon_height)]
+    
 
         entity_dungeon.append(component_dungeon)
         entity_dungeon.append(component_visibility)
@@ -58,7 +60,7 @@ class InitSystem(System):
         entity_player.append(component_role)
         entity_player.append(component_position)
         entity_player.append(component_status)
-        
+
         System.add_entity(entity_player)
 
         # create enemies
@@ -77,12 +79,21 @@ class InitSystem(System):
                 if enemy[2] == 0:
                     component_race.data['symbol'] = 'Z'
                     component_race.data['value'] = 'Zombie'
+                    component_race.data['hp'] = 10
+                    component_race.data['attack'] = 10
+                    component_race.data['fov'] = 5
                 elif enemy[2] == 1:
                     component_race.data['symbol'] = 'G'
                     component_race.data['value'] = 'Ghoul'
+                    component_race.data['hp'] = 20
+                    component_race.data['attack'] = 10
+                    component_race.data['fov'] = 5
                 elif enemy[2] == 2:
                     component_race.data['symbol'] = 'V'
                     component_race.data['value'] = 'Vampire'
+                    component_race.data['hp'] = 20
+                    component_race.data['attack'] = 20
+                    component_race.data['fov'] = 5
 
                 component_direction = Component('direction')
                 component_direction.data['x'] = None

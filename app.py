@@ -10,6 +10,7 @@ from init_system import InitSystem
 from dungeon_system import DungeonSystem
 from enemies_system import EnemiesSystem
 from noise_system import NoiseSystem
+from gameover_system import GameoverSystem
 
 def main():
     # crate state entity
@@ -44,8 +45,7 @@ def main():
     system_visibility = VisibilitySystem()
     system_enemies = EnemiesSystem()
     system_noise = NoiseSystem()
-
-    #system_fight = FightSystem()
+    system_gameover = GameoverSystem()
     
 
     while(True):
@@ -57,6 +57,7 @@ def main():
         system_init.update()
         system_dungeon.update()
         system_enemies.update()
+        system_gameover.update()
         #system_fight.update()
 
 

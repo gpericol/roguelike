@@ -9,9 +9,9 @@ class StateSystem(System):
         }
 
         states:
-            - fight
+            - init
             - dungeon
-            - menu
+            - gameover
     """
     def update(self):
 
@@ -28,9 +28,9 @@ class StateSystem(System):
         state_entity = self.filter_entities(['state'])[0]
         curses = state_entity.get('curses')["value"]
 
-        if new_state == 'fight':
-            curses.screen.nodelay(True)
-            self.get_entity_component('state')['value'] = "fight"
+        if new_state == 'gameover':
+            curses.screen.nodelay(False)
+            self.get_entity_component('state')['value'] = "gameover"
 
         if new_state == 'dungeon':
             curses.screen.nodelay(False)
