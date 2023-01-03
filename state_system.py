@@ -112,7 +112,33 @@ class StateSystem(System):
                 entity_crate.append(component_state)
                 
                 System.add_entity(entity_crate)
-    
+
+        # create stairs
+        for floor in dungeon_generator.floors:
+            if floor.floor_number != 0:
+                component_stair_up_position = Component('position')
+                component_stair_up_position.data['x'] = floor.get_stair_up()[0]
+                component_stair_up_position.data['y'] = floor.get_stair_up()[1]
+                component_stair_up_position.data['floor'] = floor.floor_number
+                entity_stair_up = Entity()
+                component_role = Component('role')
+                component_role.data['value'] = 'stair_up'
+                entity_stair_up.append(component_role)
+                entity_stair_up.append(component_stair_up_position)
+                System.add_entity(entity_stair_up)
+
+            if floor.floor_number != dungeon_generator.floors_num - 1:
+                component_stair_down_position = Component('position')
+                component_stair_down_position.data['x'] = floor.get_stair_down()[0]
+                component_stair_down_position.data['y'] = floor.get_stair_down()[1]
+                component_stair_down_position.data['floor'] = floor.floor_number
+                entity_stair_down = Entity()
+                component_role = Component('role')
+                component_role.data['value'] = 'stair_down'
+                entity_stair_down.append(component_role)
+                entity_stair_down.append(component_stair_down_position)
+                System.add_entity(entity_stair_down)
+
     def unload_dungeon(self):
         #remove entity player and enemies and crates
         entity_roles = System.filter_entities(['role'])

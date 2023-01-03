@@ -2,6 +2,7 @@ from system import System
 from constants import * 
 import curses
 import math
+import time
 
 class ScreenSystem(System):    
     def get_top_string(self, player, curses_component):
@@ -41,7 +42,6 @@ class ScreenSystem(System):
         player = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
         dungeon_entity = System.filter_entities(['dungeon'])[0]
 
-
         map = dungeon_entity.get('dungeon')['map'][player.get('position')['floor']]
         blood = dungeon_entity.get('dungeon')['blood'][player.get('position')['floor']]
         visited = dungeon_entity.get('dungeon')['visited'][player.get('position')['floor']]
@@ -55,6 +55,20 @@ class ScreenSystem(System):
 
         # get crates in same floor
         crates = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'crate' and e.get('position')['floor'] == player.get('position')['floor']]
+
+        # get stair up in same floor
+        stair_up = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'stair_up' and e.get('position')['floor'] == player.get('position')['floor']]
+        if stair_up:
+            stair_up = stair_up[0]
+        else:
+            stair_up = None
+
+        # get stair down in same floor
+        stair_down = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'stair_down' and e.get('position')['floor'] == player.get('position')['floor']]
+        if stair_down:
+            stair_down = stair_down[0]
+        else:
+            stair_down = None
 
         # get map size
         map_h = len(map)
@@ -115,7 +129,7 @@ class ScreenSystem(System):
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, value, curses.color_pair(color))
  
 
-                    elif map[y][x] == GROUND_NORMAL:
+                    elif map[y][x] == GROUND_NORMAL: 
                         # print enemies
                         print_enemy = False
                         for enemy in enemies:
@@ -125,6 +139,36 @@ class ScreenSystem(System):
                                 break
 
                         if print_enemy:
+                            continue
+
+                        # print stair up
+                        print_stair= False
+
+                        if stair_up:
+                            #print(f"Stair up: {stair_up.get('position')['x']}, {stair_up.get('position')['y']}")
+                            if stair_up.get('position')['x'] == x and stair_up.get('position')['y'] == y:
+                                if visible[y][x] == True:
+                                    color = COLOR_STAIR_VISIBLE
+                                elif visited[y][x] == True:
+                                    color = COLOR_STAIR_HIDDEN
+                                curses_component.screen.addch(y - map_start_y, x - map_start_x, '<', curses.color_pair(color))
+                                print_stair = True
+
+                        # print stair down
+                        if stair_down:
+                            System.push_event({
+                                'type': 'debug',
+                                'value': f"Stair down: {stair_down.get('position')['x']}, {stair_down.get('position')['y']} / player: {player_x}, {player_y}"
+                            })
+                            if stair_down.get('position')['x'] == x and stair_down.get('position')['y'] == y:
+                                print_stair = True
+                                if visible[y][x] == True:
+                                    color = COLOR_STAIR_VISIBLE
+                                elif visited[y][x] == True:
+                                    color = COLOR_STAIR_HIDDEN
+                                curses_component.screen.addch(y - map_start_y, x - map_start_x, '>', curses.color_pair(COLOR_STAIR_VISIBLE))
+                                
+                        if print_stair:
                             continue
 
                         if visible[y][x] == True:
@@ -138,10 +182,11 @@ class ScreenSystem(System):
                                 color = COLOR_LIGHT_RED
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(color))
                         else:
-                            #curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(COLOR_GRAY))
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
 
         
+
+
         # get noise event from system
         noise = System.get_event('noise')
 

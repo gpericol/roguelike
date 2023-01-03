@@ -72,9 +72,44 @@ class DungeonSystem(System):
                         'value': component_bonk.data['value']
                     })
 
+        stair = False
+        # check if the player is in the stair up
+        stair_up = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'stair_up' and e.get('position')['x'] == player_x and e.get('position')['y'] == player_y and e.get('position')['floor'] == player.get('position')['floor']]
+        if len(stair_up) > 0:
+            stair_up = stair_up[0]
+        else:
+            stair_up = None
+
+
+        if stair_up is not None:
+            player.get('position')['floor'] -= 1
+            # get stair down
+            stair_down = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'stair_down' and e.get('position')['floor'] == player.get('position')['floor']]
+            player.get('position')['x'] = stair_down[0].get('position')['x']
+            player.get('position')['y'] = stair_down[0].get('position')['y']
+            stair = True
         
+        # check if the player is in the stair down
+        stair_down = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'stair_down' and e.get('position')['x'] == player_x and e.get('position')['y'] == player_y and e.get('position')['floor'] == player.get('position')['floor']]
+        if len(stair_down) > 0:
+            stair_down = stair_down[0]
+        else:
+            stair_down = None
+
+        if stair_down is not None:
+            # set new floor
+            player.get('position')['floor'] += 1
+            
+            # get stair up
+            stair_up = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'stair_up' and e.get('position')['floor'] == player.get('position')['floor']]
+            
+            # set player new position
+            player.get('position')['x'] = stair_up[0].get('position')['x']
+            player.get('position')['y'] = stair_up[0].get('position')['y']
+            stair = True
+
         # check new position touch the wall
-        if map[player_y][player_x] < WALL_FULL and not fight:
+        if map[player_y][player_x] < WALL_FULL and not fight and not stair:
             player.get('position')['x'] = player_x
             player.get('position')['y'] = player_y
 
