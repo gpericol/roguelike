@@ -147,18 +147,22 @@ class EnemiesSystem(System):
 
     def update(self):
         # verify that state si dungeon
-        state = self.get_entity_component('state')['value']
+        state = System.get_entity_component('state')['value']
         if state != 'dungeon':
             return
 
         # get the map
-        dungeon = self.get_entity_component('dungeon')
+        dungeon = System.get_entity_component('dungeon')
 
         # get player entity
-        player = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
+        player = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
+        System.push_event({
+            "type": "debug",
+            "value": f"{player}"
+        })
 
         # get enemies entities and are in the same player floor
-        enemies = [enemy for enemy in self.filter_entities(['role', 'position']) if enemy.get('role')['value'] == 'enemy' and enemy.get('position')['floor'] == player.get('position')['floor']]
+        enemies = [enemy for enemy in System.filter_entities(['role', 'position']) if enemy.get('role')['value'] == 'enemy' and enemy.get('position')['floor'] == player.get('position')['floor']]
 
         # get map on player floor
         map = dungeon['map'][player.get('position')['floor']]
@@ -201,10 +205,6 @@ class EnemiesSystem(System):
                     # find path to player
                     path_to_player = self.a_star(map, (enemy_x, enemy_y), (player_x, player_y))
                     enemy.get('direction')['value'] = path_to_player[1:]
-                    System.push_event({
-                        "type": "debug",
-                        "value": f"{path_to_player[-1][0]} {path_to_player[-1][1]} {player_x} {player_y}"
-                    })
             
             if len(enemy.get('direction')["value"]) == 0:
                 # find nearest path
@@ -239,4 +239,3 @@ class EnemiesSystem(System):
                     enemy.get('direction')["value"].pop(0)
                     enemy.get('position')['x'] = direction[0]
                     enemy.get('position')['y'] = direction[1]
-

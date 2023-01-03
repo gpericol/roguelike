@@ -9,6 +9,7 @@ class CursesManager:
         curses.noecho()
         curses.cbreak()
         curses.curs_set(False)
+        self.screen.nodelay(False)
         curses.start_color()
         curses.use_default_colors()
         self.init_colors()

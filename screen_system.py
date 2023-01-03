@@ -35,11 +35,12 @@ class ScreenSystem(System):
 
     # print map using ncurses putting player in the middle and map around
     def print_dungeon(self):
-        curses_component = self.get_entity_component('curses')['value']
+        curses_component = System.get_entity_component('curses')['value']
         curses_component.screen.clear()
         
-        player = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
-        dungeon_entity = [e for e in self.filter_entities(['dungeon'])][0]
+        player = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
+        dungeon_entity = System.filter_entities(['dungeon'])[0]
+
 
         map = dungeon_entity.get('dungeon')['map'][player.get('position')['floor']]
         blood = dungeon_entity.get('dungeon')['blood'][player.get('position')['floor']]
@@ -50,10 +51,10 @@ class ScreenSystem(System):
         player_y = player.get('position')['y']
 
         # get enemies in same floor
-        enemies = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'enemy' and e.get('position')['floor'] == player.get('position')['floor']]
+        enemies = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'enemy' and e.get('position')['floor'] == player.get('position')['floor']]
 
         # get crates in same floor
-        crates = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'crate' and e.get('position')['floor'] == player.get('position')['floor']]
+        crates = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'crate' and e.get('position')['floor'] == player.get('position')['floor']]
 
         # get map size
         map_h = len(map)
@@ -180,7 +181,7 @@ class ScreenSystem(System):
     
 
     def print_init(self):
-        curses_component = self.get_entity_component('curses')['value']
+        curses_component = System.get_entity_component('curses')['value']
         curses_component.screen.clear()
         curses_component.screen.addstr(5, 0, TITLE, curses.color_pair(COLOR_RED))
         curses_component.screen.addstr(1, 0, 'Press [Enter] to start', )
@@ -188,14 +189,14 @@ class ScreenSystem(System):
         curses_component.screen.refresh()
 
     def print_gameover(self):
-        curses_component = self.get_entity_component('curses')['value']
+        curses_component = System.get_entity_component('curses')['value']
         curses_component.screen.clear()
         curses_component.screen.addstr(5, 0, GAMEOVER, curses.color_pair(COLOR_RED))
         curses_component.screen.addstr(1, 0, 'Press [Enter] to start', )
         curses_component.screen.refresh()
 
     def update(self):
-        state = self.get_entity_component('state')['value']
+        state = System.get_entity_component('state')['value']
         if state == 'dungeon':
             self.print_dungeon()
         elif state == 'init':

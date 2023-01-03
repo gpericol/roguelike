@@ -51,12 +51,12 @@ class Floor:
         # select random room and put just one enemy
         for room in self.rooms:
             # select a random corner of room    
-            x = room.x1 + 1
-            y = room.y1 + 1
+            x = room.x1 + 2
+            y = room.y1 + 2
             if random.randint(0, 100) > 50:
-                x = room.x2 - 1
+                x = room.x2 - 2
             if random.randint(0, 100) > 50:
-                y = room.y2 - 1
+                y = room.y2 - 2
 
             self.crates.append((x, y))
             # set crate closed on the map

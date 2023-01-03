@@ -28,4 +28,4 @@ class Entity:
         return True
 
     def __str__(self):
-        return f"{self.id} - {self._components}"
+        return f"{self.id} - {[key for key in self._components.keys()]}"

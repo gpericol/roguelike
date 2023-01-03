@@ -10,7 +10,7 @@ class FightSystem(System):
         
     def update(self):
         # get state and verify that is fight
-        state = self.get_entity_component('state')['value']
+        state = System.get_entity_component('state')['value']
         if state != 'fight':
             return
 
@@ -35,7 +35,7 @@ class FightSystem(System):
         key = key_press['value']
         # just test
 
-        key_sequence = self.get_entity_component('key_sequence')['value']
+        key_sequence = System.get_entity_component('key_sequence')['value']
         # if bigger than 10 remove last
         if len(key_sequence) > 10:
             key_sequence.pop(0)

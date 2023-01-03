@@ -86,14 +86,14 @@ class VisibilitySystem(System):
 
     def update(self):
         # get state and verify that is a dungeon
-        state = self.get_entity_component('state')['value']
+        state = System.get_entity_component('state')['value']
         if state != 'dungeon':
             return
 
         # get the map
-        dungeon = [e for e in self.filter_entities(['dungeon'])][0]
+        dungeon = [e for e in System.filter_entities(['dungeon'])][0]
         
         # get the player
-        player = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
+        player = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
 
         self.shadow_cast(player, dungeon)

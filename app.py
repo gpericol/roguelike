@@ -21,14 +21,9 @@ def main():
     component_curses.data['value'] = curses_manager
 
     component_state = Component('state')
-    component_state.data['value'] = 'fight'
-
-    component_key_sequence = Component('key_sequence')
-    component_key_sequence.data['value'] = []
 
     entity_state.append(component_curses)
     entity_state.append(component_state)
-    entity_state.append(component_key_sequence)
 
     System.add_entity(entity_state)
 
@@ -58,8 +53,6 @@ def main():
         system_dungeon.update()
         system_enemies.update()
         system_gameover.update()
-        #system_fight.update()
-
 
 if __name__ == '__main__':
     main()

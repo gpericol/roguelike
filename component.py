@@ -1,4 +1,5 @@
 import json
+import copy
 
 FILE = 'components.json'
 
@@ -15,7 +16,7 @@ class Component:
             raise ValueError('Component not found')
 
         self.name = name
-        self.data = Component._components[name].copy()
+        self.data = copy.deepcopy(Component._components[name])
 
     def __str__(self) -> str:
         return f"{self.data}"

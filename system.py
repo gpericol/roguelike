@@ -2,9 +2,6 @@ class System:
     _events = []
     entities = []
 
-    def __init__(self):
-        return
-
     @staticmethod
     def add_entity(entity):
         System.entities.append(entity)
@@ -20,10 +17,10 @@ class System:
     # this method is used to get the first entity that has the component and return it
     @staticmethod
     def get_entity_component(name):
-        entities = [entity for entity in System.entities if entity.has(name)]
-        if len(entities) == 0:
+        ret_entities = [entity for entity in System.entities if entity.has(name)]
+        if len(ret_entities) == 0:
             raise Exception("No entity with this component")
-        return entities[0].get(name)
+        return ret_entities[0].get(name)
 
 
     def update(self):
@@ -44,3 +41,10 @@ class System:
     @staticmethod
     def clean_events():
         System._events = []
+
+    @staticmethod
+    def print_entities():
+        with open('entities.txt', 'a') as f:
+            for e in System.entities:
+                f.write(str(e) + '\n')
+            f.write("------------------\n")

@@ -51,7 +51,7 @@ class KeyboardSystem(System):
 
     def update(self):
         # get curses
-        curses = self.filter_entities(['curses'])[0].get('curses')['value']
+        curses = System.filter_entities(['curses'])[0].get('curses')['value']
         # get key
         key = curses.screen.getch()
         # no keypress ( nodelay = True )

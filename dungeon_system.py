@@ -5,15 +5,15 @@ class DungeonSystem(System):
 
     def update(self):
         # get state and verify that is a dungeon
-        state = self.get_entity_component('state')['value']
+        state = System.get_entity_component('state')['value']
         if state != 'dungeon':
             return
 
         # get the map
-        dungeon = self.get_entity_component('dungeon')
+        dungeon = System.get_entity_component('dungeon')
         
         # get the player
-        player = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
+        player = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
         map = dungeon['map'][player.get('position')['floor']]
         blood = dungeon['blood'][player.get('position')['floor']]
 
@@ -45,7 +45,7 @@ class DungeonSystem(System):
 
         fight = False
         # get enemies
-        enemies = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'enemy' and e.get('position')['floor'] == player.get('position')['floor']]
+        enemies = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'enemy' and e.get('position')['floor'] == player.get('position')['floor']]
         for enemy in enemies:
             # check if player_x and player_y are in the enemy position
             if enemy.get('position')['x'] == player_x and enemy.get('position')['y'] == player_y:
@@ -63,7 +63,7 @@ class DungeonSystem(System):
 
         if map[player_y][player_x] == CRATE:
             # check if the crate is closed
-            crate = [e for e in self.filter_entities(['role']) if e.get('role')['value'] == 'crate' and e.get('position')['x'] == player_x and e.get('position')['y'] == player_y and e.get('position')['floor'] == player.get('position')['floor']]
+            crate = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'crate' and e.get('position')['x'] == player_x and e.get('position')['y'] == player_y and e.get('position')['floor'] == player.get('position')['floor']]
             if len(crate) > 0:
                 crate = crate[0]
             if crate.get('state')['value'] == 'closed':

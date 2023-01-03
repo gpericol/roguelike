@@ -1,17 +1,11 @@
 from system import System
-from entity import Entity
-from component import Component
-from dungeon import Dungeon
-
 
 class GameoverSystem(System):
     def update(self):
         # get state
-        state = self.get_entity_component('state')['value']
+        state = System.get_entity_component('state')['value']
         if state != 'gameover':
             return
-
-
 
         # get event key_press
         key_press = None

@@ -13,6 +13,10 @@ def main():
         curses.init_pair(i, i, -1)
         screen.addstr(str(i) + ' ', curses.color_pair(i))
 
+    
+    for i in range(1, 512):
+        screen.addstr(chr(i))
+
 
     screen.refresh()
     screen.getch()
