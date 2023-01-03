@@ -39,7 +39,7 @@ def main():
     system_dungeon = DungeonSystem()
     system_visibility = VisibilitySystem()
     system_enemies = EnemiesSystem()
-    system_anymation = AnimationSystem()
+    system_animation = AnimationSystem()
     system_gameover = GameoverSystem()
     
 
@@ -47,7 +47,7 @@ def main():
         system_state.update()
         system_visibility.update()
         system_screen.update()
-        system_damage.update()
+        system_animation.update()
         system_keyboard.update()
         system_init.update()
         system_dungeon.update()
