@@ -86,7 +86,10 @@ class DungeonSystem(System):
             if crate.get('state')['value'] == 'closed':
                 System.push_event({
                     'type': 'noise_event',
-                    'value': 'crate_open'
+                    'value': {
+                        'x': crate.get('position')['x'],
+                        'y': crate.get('position')['y']
+                    }
                 })
                 crate.get('state')['value'] = 'open'
 

@@ -149,11 +149,13 @@ class ScreenSystem(System):
             symbol = noise["value"]['symbol']
             color = noise["value"]['color']
             radius = noise["value"]['radius']
+            x = noise["value"]['position']['x']
+            y = noise["value"]['position']['y']
 
             for i in range(360):
                 deg = i * (math.pi / 180)
-                nx = round(math.cos(deg) * radius) + player_x - map_start_x
-                ny = round(math.sin(deg) * radius) + player_y - map_start_y
+                nx = round(math.cos(deg) * radius) + x - map_start_x
+                ny = round(math.sin(deg) * radius) + y - map_start_y
                 if nx >= 0 and nx < curses_component.w and ny >= 0 and ny < curses_component.h:
                     curses_component.screen.addch(ny, nx, symbol, curses.color_pair(color))
 

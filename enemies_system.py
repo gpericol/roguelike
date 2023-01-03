@@ -172,12 +172,26 @@ class EnemiesSystem(System):
         # get paths on player floor
         paths = dungeon['paths'][player.get('position')['floor']]
 
-        for enemy in enemies:            
-            if self.diag_dist(enemy.get('position')['x'], enemy.get('position')['y'], player.get('position')['x'], player.get('position')['y']) <= enemy.get('race')['fov']:
-                enemy_x =  enemy.get('position')['x']
-                enemy_y =  enemy.get('position')['y']
-                player_x = player.get('position')['x']
-                player_y = player.get('position')['y']
+        player_x = player.get('position')['x']
+        player_y = player.get('position')['y']
+
+        noise_event = System.get_event('noise_event')
+        for enemy in enemies:
+            enemy_x = enemy.get('position')['x']
+            enemy_y = enemy.get('position')['y']
+            
+            hear_noise = False
+            if noise_event is not None:
+                noise_x = noise_event["value"]['x']
+                noise_y = noise_event["value"]['y']
+                distance = self.diag_dist(enemy_x, enemy_y, noise_x, noise_y)
+                if distance <= NOISE_RADIUS:
+                    # find path to player
+                    path_to_player = self.a_star(map, (enemy_x, enemy_y), (player_x, player_y))
+                    enemy.get('direction')['value'] = path_to_player[1:]
+                    hear_noise = True
+
+            if not hear_noise and self.diag_dist(enemy.get('position')['x'], enemy.get('position')['y'], player.get('position')['x'], player.get('position')['y']) <= enemy.get('race')['fov']:
                 radius = enemy.get('race')['fov']
                 fov_size = radius * 2 + 1
 

@@ -57,7 +57,8 @@ class AnimationSystem(ScreenSystem):
                     'value': {
                         'color': COLOR_WHITE,
                         'symbol': random.choice(['-', '*', '+']),
-                        'radius': i + 3
+                        'radius': NOISE_RADIUS + i,
+                        'position': noise_event['value'],
                     }
                 })
             super().update()
