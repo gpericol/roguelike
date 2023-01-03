@@ -9,7 +9,7 @@ from keyboard_system import KeyboardSystem
 from init_system import InitSystem
 from dungeon_system import DungeonSystem
 from enemies_system import EnemiesSystem
-from noise_system import NoiseSystem
+from animation_system import AnimationSystem
 from gameover_system import GameoverSystem
 
 def main():
@@ -39,7 +39,7 @@ def main():
     system_dungeon = DungeonSystem()
     system_visibility = VisibilitySystem()
     system_enemies = EnemiesSystem()
-    system_noise = NoiseSystem()
+    system_anymation = AnimationSystem()
     system_gameover = GameoverSystem()
     
 
@@ -47,7 +47,7 @@ def main():
         system_state.update()
         system_visibility.update()
         system_screen.update()
-        system_noise.update()
+        system_damage.update()
         system_keyboard.update()
         system_init.update()
         system_dungeon.update()

@@ -156,10 +156,6 @@ class EnemiesSystem(System):
 
         # get player entity
         player = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'player'][0]
-        System.push_event({
-            "type": "debug",
-            "value": f"{player}"
-        })
 
         # get enemies entities and are in the same player floor
         enemies = [enemy for enemy in System.filter_entities(['role', 'position']) if enemy.get('role')['value'] == 'enemy' and enemy.get('position')['floor'] == player.get('position')['floor']]
@@ -230,12 +226,24 @@ class EnemiesSystem(System):
                 if direction[0] == player.get('position')['x'] and direction[1] == player.get('position')['y']:
                     blood[direction[1]][direction[0]] = True
                     player.get('status')['hp'] -= 20
+                    System.push_event({
+                        'type': 'damage_event',
+                        'value': 20
+                    })
                     if player.get('status')['hp'] <= 0:
                         System.push_event({
                             "type": "state_change",
                             "value": "gameover"
                         })
                 else:
-                    enemy.get('direction')["value"].pop(0)
-                    enemy.get('position')['x'] = direction[0]
-                    enemy.get('position')['y'] = direction[1]
+                    # stun enemies
+                    bonk = 0
+                    if enemy.has('bonk'):
+                        enemy.get('bonk')['value'] -= 1
+                        bonk = enemy.get('bonk')['value']
+                        if bonk <= 0:
+                            enemy.remove('bonk')
+                    if bonk <= 0:
+                        enemy.get('direction')["value"].pop(0)
+                        enemy.get('position')['x'] = direction[0]
+                        enemy.get('position')['y'] = direction[1]

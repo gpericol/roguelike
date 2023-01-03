@@ -143,11 +143,7 @@ class ScreenSystem(System):
 
         
         # get noise event from system
-        noise = None
-        for event in System._events:
-            if event['type'] == 'noise':
-                noise = event
-                break
+        noise = System.get_event('noise')
 
         if noise:
             symbol = noise["value"]['symbol']
@@ -164,6 +160,51 @@ class ScreenSystem(System):
             # remove noise from system
             self.remove_events('noise')
 
+        damage = System.get_event('damage')
+
+        if damage:
+            value = "-" + damage["value"]['value'] 
+            count = damage["value"]['count']
+            color = COLOR_LIGHT_RED
+
+            nx = player_x - map_start_x
+            ny = player_y - map_start_y + count
+
+            if nx >= 0 and nx < curses_component.w and ny >= 0 and ny < curses_component.h:
+                curses_component.screen.addstr(ny, nx, value, curses.color_pair(color))
+
+            self.remove_events('damage')
+
+        bonk = System.get_event('bonk')
+
+        if bonk:
+            value = "*BONK*"
+            count = bonk["value"]['count']
+            color = COLOR_GRAY
+
+            nx = player_x - map_start_x
+            ny = player_y - map_start_y - count
+
+            if nx >= 0 and nx < curses_component.w and ny >= 0 and ny < curses_component.h:
+                curses_component.screen.addstr(ny, nx, value, curses.color_pair(color))
+
+            self.remove_events('bonk')
+
+        death = System.get_event('death')
+
+        if death:
+            color = death["value"]['color']
+            x = death["value"]['position']['x']
+            y = death["value"]['position']['y']
+
+            nx = x - map_start_x
+            ny = y - map_start_y
+
+            if nx >= 0 and nx < curses_component.w and ny >= 0 and ny < curses_component.h:
+                curses_component.screen.addch(ny, nx, '±', curses.color_pair(color))
+
+            self.remove_events('death')
+        
         # print top bar
         curses_component.screen.addstr(0, 0, self.get_top_string(player, curses_component), curses.color_pair(COLOR_TOP))
         

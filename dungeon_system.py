@@ -1,5 +1,7 @@
 from system import System
 from constants import *
+import random
+from component import Component
 
 class DungeonSystem(System):
 
@@ -53,7 +55,22 @@ class DungeonSystem(System):
                 enemy.get('race')['hp'] -= PLAYER_ATTACK
                 blood[enemy.get('position')['y']][enemy.get('position')['x']] = True
                 if enemy.get('race')['hp'] <= 0:
+                    System.push_event({
+                        'type': 'death_event',
+                        'value': {
+                            'x': enemy.get('position')['x'],
+                            'y': enemy.get('position')['y']
+                        }
+                    })
                     System.remove_entity_by_id(enemy.id)
+                else:
+                    component_bonk = Component('bonk')
+                    component_bonk.data['value'] = random.randint(3, 8)
+                    enemy.append(component_bonk)
+                    System.push_event({
+                        'type': 'bonk_event',
+                        'value': component_bonk.data['value']
+                    })
 
         
         # check new position touch the wall

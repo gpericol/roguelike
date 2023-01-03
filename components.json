@@ -43,5 +43,8 @@
         "max_hp": 100,
         "sanity": 100,
         "max_sanity": 100
+    },
+    "bonk": {
+        "value": 0
     }
 }

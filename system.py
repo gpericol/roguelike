@@ -41,10 +41,10 @@ class System:
     @staticmethod
     def clean_events():
         System._events = []
-
+    
     @staticmethod
-    def print_entities():
-        with open('entities.txt', 'a') as f:
-            for e in System.entities:
-                f.write(str(e) + '\n')
-            f.write("------------------\n")
+    def get_event(name):
+        for event in System._events:
+            if event['type'] == name:
+                return event
+        return None
