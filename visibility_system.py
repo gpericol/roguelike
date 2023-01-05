@@ -42,7 +42,7 @@ class VisibilitySystem(System):
     def shadow_cast(self, player_entity, dungeon_entity):
         # get map from dungeon
         map_value = dungeon_entity.get('dungeon')['map'][player_entity.get('position')['floor']]
-        radius = dungeon_entity.get('visibility')['fov']
+        radius = round(player_entity.get('status')['sanity']/10) + 2 
 
         map_visible = dungeon_entity.get('visibility')['visible']
         map_visited = dungeon_entity.get('dungeon')['visited'][player_entity.get('position')['floor']]

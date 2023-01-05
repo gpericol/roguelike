@@ -5,12 +5,24 @@ from dungeon import Dungeon
 
 class StateSystem(System):
 
+    def create_stairs(self, position, floor_number, role):
+        entity_stair = Entity()
+        component_role = Component('role')
+        component_role.data['value'] = role
+        component_position = Component('position')
+        component_position.data['x'] = position[0]
+        component_position.data['y'] = position[1]
+        component_position.data['floor'] = floor_number
+        entity_stair.append(component_role)
+        entity_stair.append(component_position)
+        System.add_entity(entity_stair)
+
     def load_dungeon(self):
         # create dungeon entity
         entity_dungeon = Entity()
-        dungeon_height = 50
-        dungeon_width = 50
-        dungeon_generator = Dungeon(dungeon_width, dungeon_height, 3, 20, 10, 3)
+        dungeon_height = 100
+        dungeon_width = 100
+        dungeon_generator = Dungeon(dungeon_width, dungeon_height, 40, 20, 10, 3)
         
         component_dungeon = Component('dungeon')
         component_dungeon.data['floors_number'] = dungeon_generator.floors_num
@@ -63,24 +75,18 @@ class StateSystem(System):
                 component_position.data['floor'] = floor.floor_number
 
                 component_race = Component('race')
-                if enemy[2] == 0:
-                    component_race.data['symbol'] = 'Z'
-                    component_race.data['value'] = 'Zombie'
-                    component_race.data['hp'] = 10
-                    component_race.data['attack'] = 10
-                    component_race.data['fov'] = 5
-                elif enemy[2] == 1:
-                    component_race.data['symbol'] = 'G'
-                    component_race.data['value'] = 'Ghoul'
-                    component_race.data['hp'] = 20
-                    component_race.data['attack'] = 10
-                    component_race.data['fov'] = 5
-                elif enemy[2] == 2:
-                    component_race.data['symbol'] = 'V'
-                    component_race.data['value'] = 'Vampire'
-                    component_race.data['hp'] = 20
-                    component_race.data['attack'] = 20
-                    component_race.data['fov'] = 5
+
+                races = {
+                    0: ('Z', 'Zombie', 10, 10, 5),
+                    1: ('G', 'Ghoul', 20, 10, 5),
+                    2: ('V', 'Vampire', 20, 20, 5),
+                }
+                symbol, value, hp, attack, fov = races[enemy[2]]
+                component_race.data['symbol'] = symbol
+                component_race.data['value'] = value
+                component_race.data['hp'] = hp
+                component_race.data['attack'] = attack
+                component_race.data['fov'] = fov
 
                 component_direction = Component('direction')
                 component_direction.data['x'] = None
@@ -115,29 +121,17 @@ class StateSystem(System):
 
         # create stairs
         for floor in dungeon_generator.floors:
+            # first floor no stair up
             if floor.floor_number != 0:
-                component_stair_up_position = Component('position')
-                component_stair_up_position.data['x'] = floor.get_stair_up()[0]
-                component_stair_up_position.data['y'] = floor.get_stair_up()[1]
-                component_stair_up_position.data['floor'] = floor.floor_number
-                entity_stair_up = Entity()
-                component_role = Component('role')
-                component_role.data['value'] = 'stair_up'
-                entity_stair_up.append(component_role)
-                entity_stair_up.append(component_stair_up_position)
-                System.add_entity(entity_stair_up)
+                self.create_stairs(floor.get_stair_up(), floor.floor_number, 'stair_up')
+            # goal
+            if floor.floor_number == dungeon_generator.floors_num - 1:
+                self.create_stairs(floor.get_stair_down(), floor.floor_number, 'goal')
+            # stair down
+            else: 
+                self.create_stairs(floor.get_stair_down(), floor.floor_number, 'stair_down')
 
-            if floor.floor_number != dungeon_generator.floors_num - 1:
-                component_stair_down_position = Component('position')
-                component_stair_down_position.data['x'] = floor.get_stair_down()[0]
-                component_stair_down_position.data['y'] = floor.get_stair_down()[1]
-                component_stair_down_position.data['floor'] = floor.floor_number
-                entity_stair_down = Entity()
-                component_role = Component('role')
-                component_role.data['value'] = 'stair_down'
-                entity_stair_down.append(component_role)
-                entity_stair_down.append(component_stair_down_position)
-                System.add_entity(entity_stair_down)
+
 
     def unload_dungeon(self):
         #remove entity player and enemies and crates
@@ -181,6 +175,10 @@ class StateSystem(System):
         if new_state == 'gameover':
             self.unload_dungeon()
             System.get_entity_component('state')['value'] = "gameover"
+
+        if new_state == 'win':
+            self.unload_dungeon()
+            System.get_entity_component('state')['value'] = "win"
 
         if new_state == 'dungeon':
             self.load_dungeon()

@@ -80,7 +80,6 @@ class DungeonSystem(System):
         else:
             stair_up = None
 
-
         if stair_up is not None:
             player.get('position')['floor'] -= 1
             # get stair down
@@ -108,8 +107,25 @@ class DungeonSystem(System):
             player.get('position')['y'] = stair_up[0].get('position')['y']
             stair = True
 
+        # add goal
+        goal = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'goal' and e.get('position')['floor'] == player.get('position')['floor']]
+        win = False
+        if len(goal) > 0:
+            goal = goal[0]
+        else:
+            goal = None
+        
+        if goal is not None:
+            if goal.get('position')['x'] == player_x and goal.get('position')['y'] == player_y:
+                System.push_event({
+                    "type": "state_change",
+                    "value": "win"
+                })
+                win = True
+                
+
         # check new position touch the wall
-        if map[player_y][player_x] < WALL_FULL and not fight and not stair:
+        if map[player_y][player_x] < WALL_FULL and not fight and not stair and not win:
             player.get('position')['x'] = player_x
             player.get('position')['y'] = player_y
 
@@ -126,6 +142,27 @@ class DungeonSystem(System):
                         'y': crate.get('position')['y']
                     }
                 })
+    
+                # make a random chioice with 0.5 probability
+                if random.random() < 0.5:
+                    # add +10 sanity
+                    player.get('status')['sanity'] += 10
+                    if player.get('status')['sanity'] > player.get('status')['max_sanity']:
+                        player.get('status')['sanity'] = player.get('status')['max_sanity']
+                    System.push_event({
+                        'type': 'sanity_event',
+                        'value': 10
+                    })
+                else:
+                    # add + 10 health
+                    player.get('status')['hp'] += 10
+                    if player.get('status')['hp'] > player.get('status')['max_hp']:
+                        player.get('status')['hp'] = player.get('status')['max_hp']
+                    System.push_event({
+                        'type': 'health_event',
+                        'value': 10
+                    })
+
                 crate.get('state')['value'] = 'open'
 
         System.remove_events('key_stroke')

@@ -119,29 +119,26 @@ class EnemiesSystem(System):
         return a + (b - a) * t    
 
     def fov(self, map, x, y, dist):
-        glare = [[False for x in range(len(map[0]))] for y in range(len(map))]
+        glare = [[False for _ in range(len(map[0]))] for _ in range(len(map))]
 
         for i in range(360):
-            deg = i * (math.pi / 180)
-            nx = round(math.cos(deg) * dist) + x
-            ny = round(math.sin(deg) * dist) + y
+            rad = math.radians(i)
+            nx = round(math.cos(rad) * dist) + x
+            ny = round(math.sin(rad) * dist) + y
 
             d = self.diag_dist(x, y, nx, ny)
                         
             for j in range(d):
-                tx = self.lerp(x, nx, j / d)
-                ty = self.lerp(y, ny, j / d)
+                tx, ty = self.lerp(x, nx, j / d), self.lerp(y, ny, j / d)
+                tx, ty = int(tx), int(ty)
 
                 if tx < 0 or ty < 0 or tx >= len(map[0]) or ty >= len(map):
                     continue
                 
-                glare[int(ty)][int(tx)] = True
+                glare[ty][tx] = True
 
-                if map[int(ty)][int(tx)] >= WALL_FULL:
-                    glare[int(ty)][int(tx)] = True
+                if map[ty][tx] >= WALL_FULL:
                     break
-
-                glare[int(ty)][int(tx)] = True
 
         return glare
 
@@ -215,6 +212,9 @@ class EnemiesSystem(System):
                     # find path to player
                     path_to_player = self.a_star(map, (enemy_x, enemy_y), (player_x, player_y))
                     enemy.get('direction')['value'] = path_to_player[1:]
+                    # sanity of player decrease
+                    if player.get('status')['sanity'] > 0:
+                        player.get('status')['sanity'] -= 1
             
             if len(enemy.get('direction')["value"]) == 0:
                 # find nearest path

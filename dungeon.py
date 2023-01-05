@@ -66,9 +66,11 @@ class Floor:
     def create_enemies(self):
         # select random corner of the room
         for room in self.rooms:
-            if random.randint(0, 100) > 50:
-                (x, y) = room.center()
-                self.enemies.append((x, y, random.randint(0, 2)))
+            # if room is not the first or the last
+            if self.rooms.index(room) != 0 and self.rooms.index(room) != len(self.rooms) - 1:
+                if random.randint(0, 100) > 50:
+                    (x, y) = room.center()
+                    self.enemies.append((x, y, random.randint(0, 2)))
         
     def get_enemies(self):
         return self.enemies

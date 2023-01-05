@@ -11,6 +11,8 @@ class AnimationSystem(ScreenSystem):
         bonk_event = None
         death_event = None
         noise_event = None
+        sanity_event = None
+        health_event = None
         for event in self._events:
             if event['type'] == 'damage_event':
                 damage_event = event
@@ -20,8 +22,12 @@ class AnimationSystem(ScreenSystem):
                 death_event = event
             if event['type'] == 'noise_event':
                 noise_event = event
+            if event['type'] == 'sanity_event':
+                sanity_event = event
+            if event['type'] == 'health_event':
+                health_event = event
 
-        if damage_event is None and bonk_event is None and death_event is None and noise_event is None:
+        if damage_event is None and bonk_event is None and death_event is None and noise_event is None and sanity_event is None and health_event is None:
             return
         
         for i in range(1,5):
@@ -61,6 +67,25 @@ class AnimationSystem(ScreenSystem):
                         'position': noise_event['value'],
                     }
                 })
+            
+            if sanity_event is not None:
+                System.push_event({
+                    'type': 'sanity',
+                    'value': {
+                        'count': i,
+                        'value': sanity_event['value']
+                    }
+                })
+
+            if health_event is not None:
+                System.push_event({
+                    'type': 'health',
+                    'value': {
+                        'count': i,
+                        'value': health_event['value']
+                    }
+                })
+                
             super().update()
             time.sleep(0.1)
 
@@ -69,4 +94,6 @@ class AnimationSystem(ScreenSystem):
         self.remove_events('bonk_event')
         self.remove_events('death_event')
         self.remove_events('noise_event')
+        self.remove_events('sanity_event')
+        self.remove_events('health_event')
         super().update()

@@ -70,6 +70,13 @@ class ScreenSystem(System):
         else:
             stair_down = None
 
+        # get goal in same floor
+        goal = [e for e in System.filter_entities(['role']) if e.get('role')['value'] == 'goal' and e.get('position')['floor'] == player.get('position')['floor']]
+        if goal:
+            goal = goal[0]
+        else:
+            goal = None
+
         # get map size
         map_h = len(map)
         map_w = len(map[0])
@@ -103,7 +110,6 @@ class ScreenSystem(System):
                     # wall or crate
                     if map[y][x] >= WALL_FULL:
                         if not visible[y][x] and not visited[y][x]:
-                            #curses_component.screen.addch(y - map_start_y, x - map_start_x, self.get_wall_char(map[y][x]), curses.color_pair(COLOR_GRAY))
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
                         else:
                             # look if there is a crate in this position
@@ -129,11 +135,12 @@ class ScreenSystem(System):
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, value, curses.color_pair(color))
  
 
+                    
                     elif map[y][x] == GROUND_NORMAL: 
                         # print enemies
                         print_enemy = False
                         for enemy in enemies:
-                            if enemy.get('position')['x'] == x and enemy.get('position')['y'] == y:
+                            if visible[y][x] == True and enemy.get('position')['x'] == x and enemy.get('position')['y'] == y:
                                 print_enemy = True
                                 curses_component.screen.addch(y - map_start_y, x - map_start_x, enemy.get('race')['symbol'], curses.color_pair(COLOR_GREEN))
                                 break
@@ -145,28 +152,37 @@ class ScreenSystem(System):
                         print_stair= False
 
                         if stair_up:
-                            #print(f"Stair up: {stair_up.get('position')['x']}, {stair_up.get('position')['y']}")
                             if stair_up.get('position')['x'] == x and stair_up.get('position')['y'] == y:
-                                if visible[y][x] == True:
-                                    color = COLOR_STAIR_VISIBLE
-                                elif visited[y][x] == True:
-                                    color = COLOR_STAIR_HIDDEN
-                                curses_component.screen.addch(y - map_start_y, x - map_start_x, '<', curses.color_pair(color))
                                 print_stair = True
+                                if visible[y][x] == True:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, '<', curses.color_pair(COLOR_STAIR_VISIBLE))
+                                elif visited[y][x] == True:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, '<', curses.color_pair(COLOR_STAIR_HIDDEN))
+                                else:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
+                                
 
                         # print stair down
                         if stair_down:
-                            System.push_event({
-                                'type': 'debug',
-                                'value': f"Stair down: {stair_down.get('position')['x']}, {stair_down.get('position')['y']} / player: {player_x}, {player_y}"
-                            })
                             if stair_down.get('position')['x'] == x and stair_down.get('position')['y'] == y:
                                 print_stair = True
                                 if visible[y][x] == True:
-                                    color = COLOR_STAIR_VISIBLE
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, '>', curses.color_pair(COLOR_STAIR_VISIBLE))
                                 elif visited[y][x] == True:
-                                    color = COLOR_STAIR_HIDDEN
-                                curses_component.screen.addch(y - map_start_y, x - map_start_x, '>', curses.color_pair(COLOR_STAIR_VISIBLE))
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, '>', curses.color_pair(COLOR_STAIR_HIDDEN))
+                                else:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
+
+                        # print goal
+                        if goal:
+                            if goal.get('position')['x'] == x and goal.get('position')['y'] == y:
+                                print_stair = True
+                                if visible[y][x] == True:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, 'X', curses.color_pair(COLOR_STAIR_VISIBLE))
+                                elif visited[y][x] == True:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, 'X', curses.color_pair(COLOR_STAIR_HIDDEN))
+                                else:
+                                    curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
                                 
                         if print_stair:
                             continue
@@ -183,8 +199,6 @@ class ScreenSystem(System):
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, '.', curses.color_pair(color))
                         else:
                             curses_component.screen.addch(y - map_start_y, x - map_start_x, ' ')
-
-        
 
 
         # get noise event from system
@@ -251,6 +265,38 @@ class ScreenSystem(System):
                 curses_component.screen.addch(ny, nx, '±', curses.color_pair(color))
 
             self.remove_events('death')
+
+        sanity = System.get_event('sanity')
+
+        if sanity:
+            value = "+10 SANITY"
+            count = sanity["value"]['count']
+            color = COLOR_WHITE
+
+            nx = player_x - map_start_x
+            ny = player_y - map_start_y - count
+
+            if nx >= 0 and nx < curses_component.w and ny >= 0 and ny < curses_component.h:
+                curses_component.screen.addstr(ny, nx, value, curses.color_pair(color))
+
+            self.remove_events('sanity')
+
+        health = System.get_event('health')
+
+        if health:
+            value = "+10 HEALTH"
+            count = health["value"]['count']
+            color = COLOR_WHITE
+
+            nx = player_x - map_start_x
+            ny = player_y - map_start_y - count
+
+            if nx >= 0 and nx < curses_component.w and ny >= 0 and ny < curses_component.h:
+                curses_component.screen.addstr(ny, nx, value, curses.color_pair(color))
+
+            self.remove_events('health')
+
+        
         
         # print top bar
         curses_component.screen.addstr(0, 0, self.get_top_string(player, curses_component), curses.color_pair(COLOR_TOP))
@@ -280,7 +326,14 @@ class ScreenSystem(System):
         curses_component = System.get_entity_component('curses')['value']
         curses_component.screen.clear()
         curses_component.screen.addstr(5, 0, GAMEOVER, curses.color_pair(COLOR_RED))
-        curses_component.screen.addstr(1, 0, 'Press [Enter] to start', )
+        curses_component.screen.addstr(1, 0, 'Press [Enter] to start')
+        curses_component.screen.refresh()
+
+    def print_win(self):
+        curses_component = System.get_entity_component('curses')['value']
+        curses_component.screen.clear()
+        curses_component.screen.addstr(5, 0, VICTORY, curses.color_pair(COLOR_GREEN))
+        curses_component.screen.addstr(1, 0, 'Press [Enter] to start')
         curses_component.screen.refresh()
 
     def update(self):
@@ -291,3 +344,5 @@ class ScreenSystem(System):
             self.print_init()
         elif state == 'gameover':
             self.print_gameover()
+        elif state == 'win':
+            self.print_win()

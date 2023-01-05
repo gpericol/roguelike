@@ -11,6 +11,7 @@ from dungeon_system import DungeonSystem
 from enemies_system import EnemiesSystem
 from animation_system import AnimationSystem
 from gameover_system import GameoverSystem
+from win_system import WinSystem
 
 def main():
     # crate state entity
@@ -41,6 +42,7 @@ def main():
     system_enemies = EnemiesSystem()
     system_animation = AnimationSystem()
     system_gameover = GameoverSystem()
+    system_win = WinSystem()
     
 
     while(True):
@@ -53,6 +55,8 @@ def main():
         system_dungeon.update()
         system_enemies.update()
         system_gameover.update()
+        system_win.update()
+
 
 if __name__ == '__main__':
     main()
