@@ -39,8 +39,8 @@
         "value": null
     },
     "status": {
-        "hp": 1000,
-        "max_hp": 1000,
+        "hp": 100,
+        "max_hp": 100,
         "sanity": 100,
         "max_sanity": 100
     },
